@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EarthSense Robot Routes</title>
+  <!-- Twitch Extension Helper: required for all extensions, must be loaded from this exact URL. -->
+  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main id="overlay" class="overlay" aria-label="Robot route controls">
+    <section class="panel">
+      <header class="panel__header">
+        <span class="panel__title">Robot Routes</span>
+        <span id="status" class="panel__status" data-state="idle">Idle</span>
+      </header>
+      <div id="routes" class="routes"></div>
+    </section>
+    <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+  </main>
+
+  <script src="js/routes.js"></script>
+  <script src="js/overlay.js"></script>
+</body>
+</html>

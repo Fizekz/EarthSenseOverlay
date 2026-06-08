@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EarthSense Robot Routes — Config</title>
+  <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/config.css" />
+</head>
+<body class="config">
+  <main class="config__wrap">
+    <h1 class="config__title">Robot Routes</h1>
+    <p class="config__lead">
+      This extension shows route buttons on your stream overlay. Clicking one
+      announces that the route is being executed. The routes below are the ones
+      viewers will see.
+    </p>
+
+    <ul id="config-routes" class="config__list"></ul>
+
+    <p id="config-status" class="config__note" data-state="idle">
+      Loading…
+    </p>
+  </main>
+
+  <script src="js/routes.js"></script>
+  <script src="js/config.js"></script>
+</body>
+</html>

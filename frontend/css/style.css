@@ -1,0 +1,172 @@
+/* EarthSense robot-route overlay styles.
+ * Transparent background so the overlay composites over live video. */
+
+:root {
+  --bg-panel: rgba(18, 20, 28, 0.82);
+  --bg-route: rgba(40, 44, 58, 0.85);
+  --bg-route-hover: rgba(60, 66, 86, 0.95);
+  --accent: #19c37d;
+  --accent-busy: #f0a500;
+  --accent-warn: #e5534b;
+  --text: #f4f6fb;
+  --text-dim: #9aa3b2;
+  --radius: 12px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: transparent;
+  font-family: var(--font);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.overlay {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* let clicks pass through empty areas to the stream */
+}
+
+.panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 240px;
+  padding: 12px;
+  background: var(--bg-panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  pointer-events: auto; /* but the panel itself is interactive */
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.panel__title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.panel__status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
+}
+
+.panel__status[data-state="ok"]   { color: #0b1f17; background: var(--accent); }
+.panel__status[data-state="busy"] { color: #1f1500; background: var(--accent-busy); }
+.panel__status[data-state="warn"] { color: #fff;    background: var(--accent-warn); }
+
+.routes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.routes__empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.route {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  background: var(--bg-route);
+  color: var(--text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.route:hover { background: var(--bg-route-hover); }
+.route:active { transform: scale(0.98); }
+.route:disabled { opacity: 0.55; cursor: progress; }
+
+.route__icon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.route__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.route__name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.route__desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Toasts: transient "route is being executed" notices. */
+.toasts {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  max-width: 280px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(18, 20, 28, 0.92);
+  border-left: 3px solid var(--accent);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.toast--show {
+  opacity: 1;
+  transform: translateY(0);
+}
