@@ -1,9 +1,6 @@
 /*
- * Broadcaster config page. For now it's read-only: it lists the routes that
- * viewers will see so the broadcaster knows what the extension does.
- *
- * Later you can let broadcasters enable/disable routes and persist choices
- * with Twitch.ext.configuration.set(...) on the 'broadcaster' segment.
+ * Broadcaster config page — read-only list of routes viewers will see.
+ * Later: let broadcasters toggle routes via Twitch.ext.configuration.set(...).
  */
 (function () {
   'use strict';

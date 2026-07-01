@@ -1,10 +1,7 @@
 /*
- * DRY-TEST ONLY. Not part of the real extension — stands in for the real
- * Twitch Extension Helper (twitch-ext.min.js) so overlay.js's
- * Twitch.ext.onAuthorized() call fires locally, the same way it would once
- * this is actually running inside a Twitch-hosted iframe.
- *
- * Do not ship this file or reference it from the real overlay.html.
+ * DRY-TEST ONLY. Stands in for the real Twitch Extension Helper so
+ * overlay.js's onAuthorized() fires locally. Never ship or reference
+ * from the real overlay.html.
  */
 (function () {
   'use strict';

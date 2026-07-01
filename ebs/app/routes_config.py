@@ -1,19 +1,10 @@
 """
-Preset route -> TSP dispatch mapping.
+Preset route -> TSP dispatch mapping. Each entry needs mission_id or waypoints:
+  - mission_id: POST /ag_manager/mission/start {mission_id, params}.
+  - waypoints: not wired up yet (RouteDispatcher raises RouteNotConfigured) —
+    TSP docs don't say how a waypoint list starts moving.
 
-Each entry needs exactly one of "mission_id" or "waypoints" populated:
-
-  - mission_id: dispatched as POST /ag_manager/mission/start {mission_id, params}.
-    Use this once the robot has predefined missions for these routes.
-
-  - waypoints: a list of {id, lat, lon, heading?} objects. NOT wired up yet —
-    the TSP docs don't specify how a waypoint list transitions into motion
-    (row_follow vs. sequential navigation/goto vs. a dedicated mission id),
-    so RouteDispatcher raises RouteNotConfigured until that's decided and
-    TspClient grows a matching method.
-
-route-1/2/3 ids match window.ROBOT_ROUTES in EarthSenseOverlay's routes.js
-and the !route1/2/3 command names in EarthSenseBot's twitch_bot.py.
+Ids match ../overlay/js/routes.js and the !route1/2/3 commands in ../bot.
 """
 
 ROUTES = {

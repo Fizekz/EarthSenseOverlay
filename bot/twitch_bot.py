@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""
-Listens in twitch.tv/earthsensesandbox and responds to !commands.
-
-Route commands (!route1/2/3) dispatch the robot by calling the EarthSense
-EBS (see ../ebs/), which owns the actual TSP call, the busy-lock, and the
-per-user cooldown — this bot no longer talks to the robot directly.
-"""
+"""Twitch chat bot. !route1/2/3 dispatch the robot via ../ebs/."""
 
 import os
 
@@ -18,7 +12,7 @@ VERSION = "testing"
 EBS_BASE_URL = os.environ.get("EBS_BASE_URL", "http://localhost:8000")
 EBS_BOT_SHARED_SECRET = os.environ["EBS_BOT_SHARED_SECRET"]
 
-# Maps chat command name -> route id used by the EBS / overlay/js/routes.js.
+# chat command -> EBS route id (see ../overlay/js/routes.js)
 ROUTE_COMMAND_MAP = {
     "route1": "route-1",
     "route2": "route-2",

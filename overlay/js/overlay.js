@@ -1,15 +1,9 @@
 /*
- * Overlay logic for the EarthSense robot-route Twitch Extension.
+ * Renders route buttons from window.ROBOT_ROUTES; on click, posts to ../ebs/
+ * (sendRouteMessage), which verifies the JWT, applies the busy-lock/cooldown,
+ * and dispatches the robot.
  *
- * Responsibilities:
- *   - Render a button per route from window.ROBOT_ROUTES.
- *   - On click, show an in-overlay toast and call sendRouteMessage().
- *   - sendRouteMessage() calls the EarthSense EBS (see ../ebs/), which
- *     verifies the Twitch extension JWT, applies the busy-lock and
- *     per-user cooldown, and dispatches the robot.
- *
- * No inline scripts / handlers are used, to stay friendly with the strict
- * Content-Security-Policy that Twitch enforces on extension frontends.
+ * No inline scripts/handlers — Twitch's extension CSP forbids them.
  */
 (function () {
   'use strict';
@@ -19,12 +13,10 @@
   var statusEl = document.getElementById('status');
   var routes = window.ROBOT_ROUTES || [];
 
-  // Deployed EBS base URL. Must be HTTPS in production (Twitch extension
-  // frontends are served over HTTPS and will block mixed-content requests).
+  // Must be HTTPS in production — Twitch blocks mixed-content requests.
   var EBS_BASE_URL = window.EBS_BASE_URL || 'https://localhost:8000';
 
-  // Populated by Twitch.ext.onAuthorized once the extension is authorized.
-  // Holds { channelId, clientId, token, userId, ... }.
+  // Set by Twitch.ext.onAuthorized(): { channelId, clientId, token, userId, ... }.
   var auth = null;
 
   function setStatus(text, state) {
@@ -38,7 +30,7 @@
     toast.textContent = message;
     toastsEl.appendChild(toast);
 
-    // Animate in on the next frame so the transition runs.
+    // Next frame so the CSS transition runs.
     requestAnimationFrame(function () { toast.classList.add('toast--show'); });
 
     window.setTimeout(function () {
@@ -130,7 +122,7 @@
 
   renderRoutes();
 
-  // Wire up the Twitch helper when present; degrade gracefully for local preview.
+  // Degrade gracefully when there's no real Twitch helper (local preview).
   if (window.Twitch && window.Twitch.ext) {
     window.Twitch.ext.onAuthorized(function (authData) {
       auth = authData;

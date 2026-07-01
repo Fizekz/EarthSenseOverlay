@@ -1,5 +1,4 @@
-/* EarthSense robot-route overlay styles.
- * Transparent background so the overlay composites over live video. */
+/* Transparent background so this composites over the live video. */
 
 :root {
   --bg-panel: rgba(18, 20, 28, 0.82);
@@ -140,7 +139,7 @@ html, body {
   white-space: nowrap;
 }
 
-/* Toasts: transient "route is being executed" notices. */
+/* Transient "route is being executed" notices. */
 .toasts {
   position: absolute;
   bottom: 16px;

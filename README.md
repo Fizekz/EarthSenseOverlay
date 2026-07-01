@@ -1,60 +1,34 @@
 # EarthSense
 
-Twitch integrations for controlling an EarthSense robot (TerraSentia Plus / TSP
-platform) on preset routes — either from chat or from a viewer-facing overlay.
+Twitch integrations for dispatching an EarthSense robot (TerraSentia Plus / TSP)
+on preset routes, from chat or a viewer overlay.
 
 ```
-Twitch chat  ──!route1──▶  bot/       ──POST /internal/routes/:id/execute──┐
-                                            (X-EBS-Secret header)           │
+Twitch chat    ──!route1──▶  bot/     ──POST /internal/routes/:id/execute──┐
                                                                              ▼
-Twitch overlay ──click──▶  overlay/   ──POST /routes/:id/execute──▶     ebs/
-                              (Authorization: Bearer <extension JWT>)       │
-                                                                             ▼
-                                                                 tsp-core-service
-                                                                 (robot's REST API)
+Twitch overlay ──click───▶  overlay/  ──POST /routes/:id/execute────▶   ebs/ ──▶ tsp-core-service
 ```
 
 ## Layout
 
-- `bot/` — the Twitch chat bot (`twitchio`). `!route1/2/3` commands call the EBS.
-- `overlay/` — the Twitch Video Overlay Extension frontend (viewer-facing route
-  buttons + broadcaster config page). Rendered by Twitch's player per-viewer;
-  not something OBS composites into the video.
-- `ebs/` — the Extension Backend Service. The only thing that talks to the
-  robot. Owns the shared busy-lock and per-user cooldown so a chat command and
-  an overlay click can't dispatch the robot at the same time. See `ebs/README.md`
-  for the architecture and setup.
+- `bot/` — twitchio chat bot. `!route1/2/3` call the EBS.
+- `overlay/` — Twitch Video Overlay Extension frontend. Rendered per-viewer by
+  Twitch's player, not by OBS.
+- `ebs/` — Extension Backend Service, the only thing that talks to the robot.
+  Shared busy-lock + per-user cooldown so bot and overlay can't dispatch at
+  once. See `ebs/README.md`.
 
-## Why one shared backend
+## Local dry-testing
 
-`bot/` and `overlay/` are two independent processes/contexts with no shared
-state. If each called `tsp-core-service` directly, they'd each need their own
-cooldown/lock tracking, and a chat command racing an overlay click could
-dispatch the robot twice at once. Routing both through `ebs/` makes the lock
-and cooldown real.
+`overlay/overlay.local-test.html` + `overlay/js/mock-twitch-ext.local-test.js`
+mock the Twitch Extension Helper for click-testing in a plain browser against
+a local `ebs/` (`EBS_DEV_MODE=true` skips JWT verification) and a stubbed
+`tsp-core-service`. Dev-only — never reference from the real `overlay.html`.
 
-## Local dry-testing (no real robot / no real Twitch)
-
-`overlay/overlay.local-test.html` and `overlay/js/mock-twitch-ext.local-test.js`
-stand in for the real Twitch Extension Helper so you can click-test the overlay
-in a plain browser, against a locally running `ebs/` (set `EBS_DEV_MODE=true` to
-skip real JWT verification) and a stub of `tsp-core-service`. These two files
-are dev-only fixtures — never reference them from the real `overlay.html`.
-
-For the real extension frontend:
-
-```bash
-cd overlay
-python3 -m http.server 8080
-```
-
-Then open <http://localhost:8080/overlay.html> for a standalone (unauthenticated)
-preview — it'll show "Local preview" status since there's no real Twitch iframe.
+For the real frontend: `cd overlay && python3 -m http.server 8080`, then open
+`overlay.html` for an unauthenticated "Local preview".
 
 ## Status
 
-Preset routes in `ebs/app/routes_config.py` currently use placeholder
-`mission_id`s — fill in the real ones once they exist on the robot's
-`ag-manager` side. See `ebs/README.md` for what's still open (waypoint-based
-routes, chat feedback on overlay-triggered dispatches, mission-completion
-events).
+`ebs/app/routes_config.py` routes use placeholder `mission_id`s — fill in the
+real ones once defined on the robot. See `ebs/README.md` for open items.

@@ -8,11 +8,9 @@ class TwitchAuthError(Exception):
 
 
 def verify_extension_jwt(token: str, secret_b64: str, dev_mode: bool = False) -> dict:
-    """
-    Verify a Twitch Extension Helper JWT (HS256, base64-encoded secret from
-    the developer console). Returns the decoded claims, which include
-    opaque_user_id (always present) and user_id (only if the viewer has
-    shared identity with the extension).
+    """Verify a Twitch Extension Helper JWT (HS256, base64 secret from the dev console).
+
+    Returns claims; user_id is only present if the viewer shared identity.
     """
     if dev_mode:
         return {"user_id": "dev-user", "opaque_user_id": "dev-user", "role": "broadcaster"}

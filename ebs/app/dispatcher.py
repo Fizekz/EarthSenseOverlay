@@ -29,15 +29,10 @@ class RobotUnsafe(RouteError):
 
 
 class RouteDispatcher:
-    """
-    Owns the single source of truth for "is the robot busy" and "is this
-    user on cooldown", so both the bot and the extension go through the same
-    checks no matter which one triggers a route.
+    """Shared busy-lock + per-user cooldown, checked by both bot and overlay dispatches.
 
-    There's no documented completion event for ag_manager missions, so the
-    busy-lock is a timeout (route_lock_seconds) rather than a real
-    "mission finished" signal — tune it to the longest route's expected
-    duration, with some headroom.
+    No completion event exists for ag_manager missions, so the lock is a
+    timeout (route_lock_seconds), not a real "mission finished" signal.
     """
 
     def __init__(self, tsp_client: TspClient, route_lock_seconds: float = 120.0, user_cooldown_seconds: float = 60.0):

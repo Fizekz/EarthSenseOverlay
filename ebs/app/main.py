@@ -45,7 +45,7 @@ async def list_routes():
 
 @app.post("/routes/{route_id}/execute")
 async def execute_from_extension(route_id: str, authorization: str = Header(...)):
-    """Called by the EarthSenseOverlay frontend, authenticated with the Twitch extension JWT."""
+    """Called by ../overlay, authenticated with a Twitch extension JWT."""
     token = authorization.removeprefix("Bearer ").strip()
     try:
         claims = verify_extension_jwt(token, settings.twitch_extension_secret, dev_mode=settings.dev_mode)
@@ -61,7 +61,7 @@ async def execute_from_extension(route_id: str, authorization: str = Header(...)
 
 @app.post("/internal/routes/{route_id}/execute")
 async def execute_from_bot(route_id: str, body: BotExecuteRequest, x_ebs_secret: str = Header(...)):
-    """Called by EarthSenseBot, authenticated with a shared secret (see .env.example)."""
+    """Called by ../bot, authenticated with a shared secret."""
     if not settings.bot_shared_secret or x_ebs_secret != settings.bot_shared_secret:
         raise HTTPException(status_code=401, detail="invalid shared secret")
 

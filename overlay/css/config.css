@@ -1,5 +1,4 @@
-/* Config page styling. Unlike the overlay, the config page sits on a solid
- * background inside the Twitch dashboard, so give it a normal surface. */
+/* Sits on a solid background in the Twitch dashboard, unlike overlay.css's transparent one. */
 
 body.config {
   background: #0e1016;
