@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EarthSense Robot Routes — DRY TEST (not the real extension page)</title>
+  <!-- DRY-TEST ONLY: mocks Twitch.ext + points at the local EBS. Real overlay.html
+       loads the actual Twitch helper script and has no EBS_BASE_URL override. -->
+  <script src="js/mock-twitch-ext.local-test.js"></script>
+  <script>window.EBS_BASE_URL = 'http://localhost:8000';</script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <main id="overlay" class="overlay" aria-label="Robot route controls">
+    <section class="panel">
+      <header class="panel__header">
+        <span class="panel__title">Robot Routes (DRY TEST)</span>
+        <span id="status" class="panel__status" data-state="idle">Idle</span>
+      </header>
+      <div id="routes" class="routes"></div>
+    </section>
+    <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+  </main>
+
+  <script src="js/routes.js"></script>
+  <script src="js/overlay.js"></script>
+</body>
+</html>

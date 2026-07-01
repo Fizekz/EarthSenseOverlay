@@ -1,8 +1,32 @@
 node_modules/
 .env
 .env.local
+.env.*
+!.env.example
 .DS_Store
 *.log
 dist/
 extension.zip
 .claude
+
+# Python (bot/, ebs/)
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+.venv/
+venv/
+env/
+ENV/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS / editor
+*.swp
+.idea/
+.vscode/

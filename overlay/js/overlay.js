@@ -4,8 +4,9 @@
  * Responsibilities:
  *   - Render a button per route from window.ROBOT_ROUTES.
  *   - On click, show an in-overlay toast and call sendRouteMessage().
- *   - sendRouteMessage() is currently a STUB: it does not hit a backend yet.
- *     When the EBS exists, replace the body with a fetch() to it (see below).
+ *   - sendRouteMessage() calls the EarthSense EBS (see ../ebs/), which
+ *     verifies the Twitch extension JWT, applies the busy-lock and
+ *     per-user cooldown, and dispatches the robot.
  *
  * No inline scripts / handlers are used, to stay friendly with the strict
  * Content-Security-Policy that Twitch enforces on extension frontends.
@@ -18,8 +19,12 @@
   var statusEl = document.getElementById('status');
   var routes = window.ROBOT_ROUTES || [];
 
+  // Deployed EBS base URL. Must be HTTPS in production (Twitch extension
+  // frontends are served over HTTPS and will block mixed-content requests).
+  var EBS_BASE_URL = window.EBS_BASE_URL || 'https://localhost:8000';
+
   // Populated by Twitch.ext.onAuthorized once the extension is authorized.
-  // Holds { channelId, clientId, token, userId, ... }. Used later by the EBS call.
+  // Holds { channelId, clientId, token, userId, ... }.
   var auth = null;
 
   function setStatus(text, state) {
@@ -42,30 +47,24 @@
     }, 4000);
   }
 
-  /*
-   * STUB. Pretends to send "<route> is being executed" to chat.
-   *
-   * Real implementation (later): POST to your EBS, which signs an extension
-   * JWT and calls the Helix "Send Extension Chat Message" endpoint:
-   *
-   *   if (!auth) return Promise.reject(new Error('Not authorized'));
-   *   return fetch(EBS_BASE + '/routes/execute', {
-   *     method: 'POST',
-   *     headers: {
-   *       'Content-Type': 'application/json',
-   *       'Authorization': 'Bearer ' + auth.token
-   *     },
-   *     body: JSON.stringify({ routeId: route.id })
-   *   }).then(function (res) {
-   *     if (!res.ok) throw new Error('EBS responded ' + res.status);
-   *     return res.json();
-   *   });
-   */
   function sendRouteMessage(route) {
-    var message = 'Executing ' + route.name + ' — route is being executed';
-    // eslint-disable-next-line no-console
-    console.log('[stub] would post to chat:', message, '| authorized:', !!auth);
-    return Promise.resolve({ ok: true, stub: true, message: message });
+    if (!auth) {
+      return Promise.reject(new Error('Not authorized'));
+    }
+    return fetch(EBS_BASE_URL + '/routes/' + encodeURIComponent(route.id) + '/execute', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + auth.token
+      }
+    }).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) {
+          throw new Error(body.detail || ('EBS responded ' + res.status));
+        }
+        return body;
+      });
+    });
   }
 
   function executeRoute(route, button) {
@@ -81,6 +80,7 @@
         // eslint-disable-next-line no-console
         console.warn('Route send failed:', err);
         setStatus('Failed: ' + route.name, 'warn');
+        showToast(err.message);
       })
       .then(function () {
         button.disabled = false;
