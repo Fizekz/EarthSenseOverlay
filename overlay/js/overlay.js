@@ -14,7 +14,9 @@
   var routes = window.ROBOT_ROUTES || [];
 
   // Must be HTTPS in production — Twitch blocks mixed-content requests.
-  var EBS_BASE_URL = window.EBS_BASE_URL || 'https://localhost:8000';
+  // Set to wherever ../ebs/ is actually reachable (must also be added to the
+  // Twitch console's "Allowlist for URL Fetching Domains").
+  var EBS_BASE_URL = window.EBS_BASE_URL || 'https://YOUR-EBS-URL-HERE';
 
   // Set by Twitch.ext.onAuthorized(): { channelId, clientId, token, userId, ... }.
   var auth = null;
