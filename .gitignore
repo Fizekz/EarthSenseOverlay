@@ -8,6 +8,7 @@ node_modules/
 dist/
 extension.zip
 .claude
+CLAUDE.md
 
 # Python (bot/, ebs/)
 __pycache__/

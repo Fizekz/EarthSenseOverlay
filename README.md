@@ -30,5 +30,20 @@ For the real frontend: `cd overlay && python3 -m http.server 8080`, then open
 
 ## Status
 
-`ebs/app/routes_config.py` routes use placeholder `mission_id`s — fill in the
-real ones once defined on the robot. See `ebs/README.md` for open items.
+Full pipeline (overlay click → EBS auth/busy-lock/cooldown → TSP dispatch)
+confirmed working end-to-end against a Hosted Test extension and a stubbed
+`tsp-core-service`. Still open:
+
+- `ebs/app/routes_config.py` routes use placeholder `mission_id`s — fill in
+  the real ones once defined on the robot.
+- `ebs/`'s current deployment is a local dev server behind a Cloudflare quick
+  tunnel — fine for testing, not durable enough for review/submission or a
+  live stream. Needs a real always-on host before then.
+- `EBS_DEV_MODE` must be `false` (with a real `TWITCH_EXTENSION_SECRET`)
+  before this ever points at an actual robot — it currently skips JWT
+  verification.
+- The extension's "Allowlist for URL Fetching Domains" (Developer Console →
+  Capabilities) must match whatever's actually set as `EBS_BASE_URL`, or the
+  overlay's requests fail via CSP, not a network error.
+
+See `ebs/README.md` for the rest.
