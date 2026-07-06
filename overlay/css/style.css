@@ -32,17 +32,23 @@ html, body {
   pointer-events: none; /* let clicks pass through empty areas to the stream */
 }
 
+/* Fills the whole Video Component box Twitch gives us (there's no transparent
+   video behind it here, unlike the Video Overlay type this was first built for). */
 .panel {
   position: absolute;
-  top: 16px;
-  left: 16px;
-  width: 240px;
-  padding: 12px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: clamp(12px, 4vw, 20px);
+  display: flex;
+  flex-direction: column;
   background: var(--bg-panel);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius);
   backdrop-filter: blur(8px);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+  overflow: hidden;
   pointer-events: auto; /* but the panel itself is interactive */
 }
 
@@ -50,21 +56,22 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  flex: 0 0 auto;
+  margin-bottom: clamp(10px, 3.5vw, 18px);
 }
 
 .panel__title {
-  font-size: 13px;
+  font-size: 56px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--text);
 }
 
 .panel__status {
-  font-size: 11px;
+  font-size: 32px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 10px 22px;
   border-radius: 999px;
   color: var(--text-dim);
   background: rgba(255, 255, 255, 0.06);
@@ -76,9 +83,12 @@ html, body {
 .panel__status[data-state="warn"] { color: #fff;    background: var(--accent-warn); }
 
 .routes {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
 }
 
 .routes__empty {
@@ -88,11 +98,12 @@ html, body {
 }
 
 .route {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: clamp(10px, 3.5vw, 18px);
   width: 100%;
-  padding: 10px;
+  padding: clamp(12px, 4vw, 22px);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   background: var(--bg-route);
@@ -109,11 +120,11 @@ html, body {
 
 .route__icon {
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
+  width: 84px;
+  height: 84px;
   display: grid;
   place-items: center;
-  font-size: 16px;
+  font-size: 46px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
 }
@@ -121,22 +132,20 @@ html, body {
 .route__body {
   display: flex;
   flex-direction: column;
+  gap: 8px;
   min-width: 0;
 }
 
 .route__name {
-  font-size: 13px;
+  font-size: 42px;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .route__desc {
-  font-size: 11px;
+  font-size: 29px;
   color: var(--text-dim);
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.3;
 }
 
 /* Transient "route is being executed" notices. */
@@ -144,21 +153,23 @@ html, body {
   position: absolute;
   bottom: 16px;
   left: 16px;
+  right: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   pointer-events: none;
 }
 
 .toast {
-  max-width: 280px;
-  padding: 10px 14px;
+  max-width: 100%;
+  padding: 14px 18px;
   border-radius: 10px;
   background: rgba(18, 20, 28, 0.92);
-  border-left: 3px solid var(--accent);
+  border-left: 4px solid var(--accent);
   color: var(--text);
-  font-size: 12px;
+  font-size: 22px;
   font-weight: 600;
+  line-height: 1.3;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   opacity: 0;
   transform: translateY(8px);
