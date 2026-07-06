@@ -25,15 +25,3 @@ For local testing without a real robot: point `TSP_BASE_URL` at a stub, and set
 - `../overlay/js/overlay.js` needs `window.EBS_BASE_URL` set to this service's
   HTTPS URL — extension frontends are HTTPS-only.
 - `CORS_ALLOW_ORIGINS` should match the extension's frontend origin.
-
-## Open items
-
-- `app/routes_config.py` routes use placeholder `mission_id`s — fill in once
-  defined on the robot.
-- Waypoint-based routes aren't wired up (`RouteDispatcher` raises
-  `RouteNotConfigured`) — TSP docs don't specify how a waypoint list starts
-  moving, so `TspClient` needs a method once that's settled.
-- No chat feedback for overlay-triggered dispatches (needs Helix "Send
-  Extension Chat Message" + extension-owner JWT signing).
-- No mission-completion event subscription — the busy-lock is a fixed
-  timeout (`ROUTE_LOCK_SECONDS`), not a real completion signal.
