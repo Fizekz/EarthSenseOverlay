@@ -1,7 +1,7 @@
 import time
 
+from .bridge_client import BridgeClient, BridgeError
 from .routes_config import ROUTES
-from .tsp_client import TspClient
 
 
 class RouteError(Exception):
@@ -29,14 +29,15 @@ class RobotUnsafe(RouteError):
 
 
 class RouteDispatcher:
-    """Shared busy-lock + per-user cooldown, checked by both bot and overlay dispatches.
+    """Shared busy-lock + per-user cooldown for route dispatches from the overlay.
 
-    No completion event exists for ag_manager missions, so the lock is a
-    timeout (route_lock_seconds), not a real "mission finished" signal.
+    No completion event exists for Unified Bridge commands yet (that's a
+    PROTOCOL TODO in bridge_client.py too), so the lock is a timeout
+    (route_lock_seconds), not a real "route finished" signal.
     """
 
-    def __init__(self, tsp_client: TspClient, route_lock_seconds: float = 120.0, user_cooldown_seconds: float = 60.0):
-        self._tsp = tsp_client
+    def __init__(self, bridge: BridgeClient, route_lock_seconds: float = 120.0, user_cooldown_seconds: float = 60.0):
+        self._bridge = bridge
         self._route_lock_seconds = route_lock_seconds
         self._user_cooldown_seconds = user_cooldown_seconds
         self._busy_until = 0.0
@@ -64,21 +65,23 @@ class RouteDispatcher:
                 f"on cooldown, try again in {int(self._user_cooldown_seconds - (now - last))}s"
             )
 
-        state = await self._tsp.controller_state()
-        if state.get("is_emergency_stopped"):
+        if not self._bridge.is_connected:
+            raise RobotUnsafe("not connected to the robot's Unified Bridge")
+
+        status = self._bridge.last_status or {}
+        if status.get("is_emergency_stopped"):
             raise RobotUnsafe("robot is emergency-stopped, cannot dispatch a route")
 
-        mission_id = route.get("mission_id")
-        waypoints = route.get("waypoints")
+        command = route.get("command")
+        payload = route.get("payload")
 
-        if mission_id:
-            tsp_result = await self._tsp.start_mission(mission_id, route.get("params"))
-        elif waypoints:
-            raise RouteNotConfigured(
-                "waypoint-based routes aren't wired up yet — see the 'waypoints' note in routes_config.py"
-            )
-        else:
-            raise RouteNotConfigured(f"route '{route_id}' has no mission_id or waypoints configured yet")
+        if not command:
+            raise RouteNotConfigured(f"route '{route_id}' has no command configured yet")
+
+        try:
+            bridge_result = await self._bridge.send_command(command, payload)
+        except BridgeError as e:
+            raise RobotUnsafe(f"Unified Bridge rejected/failed the command: {e}") from e
 
         self._busy_until = now + self._route_lock_seconds
         self._busy_route = route_id
@@ -89,5 +92,5 @@ class RouteDispatcher:
             "name": route["name"],
             "dispatched_by": user_name,
             "source": source,
-            "tsp_result": tsp_result,
+            "bridge_result": bridge_result,
         }

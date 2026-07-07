@@ -1,28 +1,44 @@
 # EarthSense
 
 Twitch integrations for dispatching an EarthSense robot (TerraSentia Plus / TSP)
-on preset routes, from chat or a viewer overlay.
+on preset routes, from a viewer overlay.
 
 ```
-Twitch chat    ──!route1──▶  bot/     ──POST /internal/routes/:id/execute──┐
-                                                                             ▼
-Twitch overlay ──click───▶  overlay/  ──POST /routes/:id/execute────▶   ebs/ ──▶ tsp-core-service
+Twitch overlay ──click──▶  overlay/  ──POST /routes/:id/execute──▶  ebs/
+                                                                        │
+                                                                websocket (drive/autonomy cmds, status updates)
+                                                                        ▼
+                                                          Unified Bridge (on the robot)
+                                                                        │
+                                                                   cmds / events
+                                                                        ▼
+                                                              Robot Services
 ```
+
+`ebs/`'s video feed goes to Twitch separately via OBS, running on the same
+machine as `ebs/` (the "OBS Machine"). The robot is not on the internet — it
+hosts its own wifi network, and the OBS Machine joins that wifi (in addition
+to being wired to ethernet) to reach it.
 
 ## Layout
 
-- `bot/` — twitchio chat bot. `!route1/2/3` call the EBS. Possible future deprecation
 - `overlay/` — Twitch Video Overlay Extension frontend.
-- `ebs/` — Extension Backend Service, bridges Twitch Extension with `tsp-core`. **WIP** (See `ebs/README.md`).
+- `ebs/` — Extension Backend Service, bridges the Twitch Extension with the
+  robot's Unified Bridge over a websocket. **WIP** (see `ebs/README.md`).
+
+The chat bot that used to live in `bot/` has been removed — all dispatch now
+goes through the overlay.
 
 ## Status
 
 **Still Testing**
 
-Full pipeline confirmed working end-to-end against a Hosted Test extension and a stubbed
-`tsp-core-service`. Still open:
-
-- `ebs/app/routes_config.py` routes use placeholder `mission_id`s
+- The Unified Bridge (robot side) is being built separately. `ebs/`'s
+  websocket client for it (`ebs/app/bridge_client.py`) is a stub: the wire
+  protocol, command vocabulary, and connection direction are all
+  placeholders until that lands — see the comments at the top of that file.
+- `ebs/app/routes_config.py` routes use placeholder commands, pending the
+  above.
 - `ebs/`'s current deployment is a local dev server behind a Cloudflare quick
   tunnel
   - The extension's "Allowlist for URL Fetching Domains" (Developer Console →

@@ -3,11 +3,16 @@ import os
 
 class Settings:
     def __init__(self):
-        self.tsp_base_url = os.environ.get("TSP_BASE_URL", "http://localhost:8080")
-        self.tsp_timeout_s = float(os.environ.get("TSP_TIMEOUT_S", "5.0"))
+        # Websocket URL for the robot's Unified Bridge, reachable over the
+        # robot's own wifi network (this machine is wired to ethernet and
+        # also joins that wifi — see bridge_client.py for the full picture).
+        # PLACEHOLDER default — set to wherever the Unified Bridge actually
+        # listens once that's stood up.
+        self.bridge_ws_url = os.environ.get("BRIDGE_WS_URL", "ws://192.168.4.1:8765/ws")
+        self.bridge_reconnect_delay_s = float(os.environ.get("BRIDGE_RECONNECT_DELAY_S", "3.0"))
+        self.bridge_command_timeout_s = float(os.environ.get("BRIDGE_COMMAND_TIMEOUT_S", "5.0"))
 
         self.twitch_extension_secret = os.environ.get("TWITCH_EXTENSION_SECRET", "")
-        self.bot_shared_secret = os.environ.get("EBS_BOT_SHARED_SECRET", "")
 
         self.cors_allow_origins = [
             o.strip()

@@ -1,41 +1,52 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
+from .bridge_client import BridgeClient
 from .config import settings
 from .dispatcher import RouteDispatcher, RouteError
-from .tsp_client import TspClient
 from .twitch_auth import TwitchAuthError, verify_extension_jwt
 
-app = FastAPI(title="EarthSense EBS")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_allow_origins,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Authorization", "Content-Type", "X-EBS-Secret"],
+bridge = BridgeClient(
+    settings.bridge_ws_url,
+    reconnect_delay_s=settings.bridge_reconnect_delay_s,
+    command_timeout_s=settings.bridge_command_timeout_s,
 )
-
-tsp_client = TspClient(settings.tsp_base_url, settings.tsp_timeout_s)
 dispatcher = RouteDispatcher(
-    tsp_client,
+    bridge,
     route_lock_seconds=settings.route_lock_seconds,
     user_cooldown_seconds=settings.user_cooldown_seconds,
 )
 
 
-class BotExecuteRequest(BaseModel):
-    user_id: str
-    user_name: str
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    bridge.start()
+    try:
+        yield
+    finally:
+        await bridge.stop()
+
+
+app = FastAPI(title="EarthSense EBS", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_allow_origins,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
+)
 
 
 @app.get("/health")
 async def health():
-    try:
-        tsp_health = await tsp_client.health()
-    except Exception as e:
-        return {"ebs": "ok", "tsp": "unreachable", "error": str(e)}
-    return {"ebs": "ok", "tsp": tsp_health}
+    return {
+        "ebs": "ok",
+        "bridge_connected": bridge.is_connected,
+        "bridge_last_status": bridge.last_status,
+        "bridge_last_status_age_s": bridge.last_status_age_s,
+    }
 
 
 @app.get("/routes")
@@ -55,17 +66,5 @@ async def execute_from_extension(route_id: str, authorization: str = Header(...)
     user_id = claims.get("user_id") or claims.get("opaque_user_id")
     try:
         return await dispatcher.dispatch(route_id, user_id=user_id, user_name=user_id, source="extension")
-    except RouteError as e:
-        raise HTTPException(status_code=e.http_status, detail=str(e)) from e
-
-
-@app.post("/internal/routes/{route_id}/execute")
-async def execute_from_bot(route_id: str, body: BotExecuteRequest, x_ebs_secret: str = Header(...)):
-    """Called by ../bot, authenticated with a shared secret."""
-    if not settings.bot_shared_secret or x_ebs_secret != settings.bot_shared_secret:
-        raise HTTPException(status_code=401, detail="invalid shared secret")
-
-    try:
-        return await dispatcher.dispatch(route_id, user_id=body.user_id, user_name=body.user_name, source="bot")
     except RouteError as e:
         raise HTTPException(status_code=e.http_status, detail=str(e)) from e
