@@ -1,18 +1,31 @@
-# EarthSense
+# EarthSense Overlay
 
 Twitch integrations for dispatching an EarthSense robot (TerraSentia Plus / TSP)
 on preset routes, from a viewer overlay.
 
-```
-Twitch overlay ──click──▶  overlay/  ──POST /routes/:id/execute──▶  ebs/
-                                                                        │
-                                                                websocket (drive/autonomy cmds, status updates)
-                                                                        ▼
-                                                          Unified Bridge (on the robot)
-                                                                        │
-                                                                   cmds / events
-                                                                        ▼
-                                                              Robot Services
+```mermaid
+flowchart LR
+    Twitch[Twitch]
+
+    subgraph OBSMachine["OBS Machine"]
+        OBS[OBS]
+        EBS[EBS]
+    end
+
+    subgraph ROBOT["ROBOT"]
+        Bridge[Unified Bridge]
+        Services[Robot Services]
+    end
+
+    OBS -- "Video stream" --> Twitch
+    Twitch -- "Cmds from overlay" --> EBS
+    EBS -- "Overlay update cmds" --> Twitch
+
+    EBS -- "Drive/Autonomy Cmds<br/>(websocket)" --> Bridge
+    Bridge -- "Status updates<br/>(websocket)" --> EBS
+
+    Bridge -- "cmds" --> Services
+    Services -- "events" --> Bridge
 ```
 
 `ebs/`'s video feed goes to Twitch separately via OBS, running on the same
