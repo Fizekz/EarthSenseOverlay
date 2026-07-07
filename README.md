@@ -35,12 +35,26 @@ to being wired to ethernet) to reach it.
 
 ## Layout
 
-- `overlay/` — Twitch Video Overlay Extension frontend.
+- `overlay/` — Twitch Video Overlay Extension frontend. See
+  [Packaging the extension](#packaging-the-extension) to build the upload zip.
 - `ebs/` — Extension Backend Service, bridges the Twitch Extension with the
   robot's Unified Bridge over a websocket. **WIP** (see `ebs/README.md`).
 
 The chat bot that used to live in `bot/` has been removed — all dispatch now
 goes through the overlay.
+
+## Packaging the extension
+
+Twitch's Developer Console (Extensions → Asset Hosting) needs a zip of
+`overlay/`'s files, without a wrapping folder, and without the local dev/test
+harness. Build it with:
+
+```bash
+./overlay/package.sh
+```
+
+This writes `dist/extension.zip` (gitignored). To write elsewhere, pass a
+path: `./overlay/package.sh /path/to/output.zip`.
 
 ## Status
 
