@@ -12,6 +12,7 @@ bridge = BridgeClient(
     settings.bridge_ws_url,
     reconnect_delay_s=settings.bridge_reconnect_delay_s,
     command_timeout_s=settings.bridge_command_timeout_s,
+    status_poll_interval_s=settings.bridge_status_poll_interval_s,
 )
 dispatcher = RouteDispatcher(
     bridge,
