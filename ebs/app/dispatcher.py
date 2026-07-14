@@ -83,7 +83,11 @@ class RouteDispatcher:
         except BridgeError as e:
             raise RobotUnsafe(f"Unified Bridge rejected/failed the command: {e}") from e
 
-        self._busy_until = now + self._route_lock_seconds
+        # route_lock_seconds counts from when the command actually finished,
+        # not from dispatch start — motion_pulse commands block for their
+        # own duration_s, so measuring from `now` would eat into the lock
+        # window by however long the command took.
+        self._busy_until = time.time() + self._route_lock_seconds
         self._busy_route = route_id
         self._last_trigger[user_id] = now
 

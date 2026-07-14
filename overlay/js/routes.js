@@ -1,9 +1,13 @@
 /*
- * Route definitions shared by overlay + config pages. Placeholders — add/
- * rename freely, but keep `id` stable and URL-safe (sent to the EBS).
+ * Route definitions shared by overlay + config pages. Ids must match
+ * ../../ebs/app/routes_config.py.
+ *
+ * TEMPORARY: forward/backward drive-pulse test in place of preset routes —
+ * see routes_config.py for why.
  */
 window.ROBOT_ROUTES = [
-  { id: 'route-1', name: 'Route 1', description: 'Placeholder route one', icon: '①' },
-  { id: 'route-2', name: 'Route 2', description: 'Placeholder route two', icon: '②' },
-  { id: 'route-3', name: 'Route 3', description: 'Placeholder route three', icon: '③' }
+  { id: 'forward', name: 'Forward', description: 'Move forward briefly', icon: '⬆' },
+  { id: 'backward', name: 'Backward', description: 'Move backward briefly', icon: '⬇' },
+  { id: 'auto-start', name: 'Start Auto Mode', description: 'Engage autonomous driving', icon: '▶' },
+  { id: 'auto-stop', name: 'Stop Auto Mode', description: 'Disengage autonomous driving', icon: '■' }
 ];
