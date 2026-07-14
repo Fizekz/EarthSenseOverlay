@@ -47,14 +47,20 @@ goes through the overlay.
 
 Twitch's Developer Console (Extensions → Asset Hosting) needs a zip of
 `overlay/`'s files, without a wrapping folder, and without the local dev/test
-harness. Build it with:
+harness. The build also bakes the HTTPS URL where `ebs/` is reachable into
+`js/ebs-config.js` (Twitch's extension CSP forbids setting it inline), so you
+must pass that URL:
 
 ```bash
-./overlay/package.sh
+EBS_BASE_URL=https://your-ebs-url ./overlay/package.sh
+# or: ./overlay/package.sh --ebs-url https://your-ebs-url
 ```
 
-This writes `dist/extension.zip` (gitignored). To write elsewhere, pass a
-path: `./overlay/package.sh /path/to/output.zip`.
+This writes `dist/extension.zip` (gitignored). Options: `--out <path>` for a
+different output location. The URL must be `https://` (Twitch blocks
+mixed content) and the script refuses to build a zip that still contains the
+placeholder URL. That same host must also be added to the Twitch console's
+**Capabilities → Allowlist for URL Fetching Domains**.
 
 ## Status
 
